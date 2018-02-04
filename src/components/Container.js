@@ -3,18 +3,20 @@ import { ActivityIndicator, View, Button, FlatList, Image, Text } from 'react-na
 import { Input } from './common';
 
 class Container extends Component {
-	state = { searchQuery: '', cardResults: {}, loading: false };
+	state = { searchQuery: '', cardResults: [], loading: false };
 
 	searchCards() {
 		this.setState({ 
 			loading: true,
-			cardResults: {}
+			cardResults: []
 		 });
-		fetch(`http://api.magicthegathering.io/v1/cards?${this.state.searchQuery}`)
+		fetch(`http://api.magicthegathering.io/v1/cards?name=${this.state.searchQuery}&pageSize=10`)
 		.then((response) => response.json())
 		.then((responseJson) => {
-			this.setState({ cardResults: responseJson.cards });
-			this.setState({ loading: false });
+			this.setState({ 
+				cardResults: responseJson.cards,
+				loading: false
+			 });
 			console.log(this.state.cardResults);
 		})
 		.catch((error) => {
@@ -31,46 +33,45 @@ class Container extends Component {
 					<Text>Loading...</Text>									
 				</View>
 			);
-		} else if (this.state.cardResults && !this.state.loading) {
-			return(
-				<FlatList
-					data={this.props.cardResults}
-					// keyExtractor={card.id}
-					renderItem={({item}) => (
-						<View>
-							<Image source={item.imageUrl} />
-							<Text>{item.name}</Text>
-							<Text>{item.type} | {item.rarity}</Text>
-						</View>
-					)}
-				/>
-			);
 		}
+
+		console.log(this.state.cardResults);
+		return this.state.cardResults.map((card) => {
+			return (
+				<View key={card.id}>
+					<Image 
+						source={{uri: `${card.imageUrl}`}} 
+						style={{width: 50, height: 50}}
+					/>
+					<Text>{card.name}</Text>
+					<Text>{card.type} | {card.rarity}</Text>
+				</View>
+			)
+		})
 	}
 
 
 	render() {
-		const { searchViewStyle, containerViewStyle, buttonStyle, inputStyle } = styles;
+		const { containerViewStyle, inputStyle, buttonStyle } = styles;
 		
 		return (
 			<View style={containerViewStyle}>
-				<View style={searchViewStyle}>
-					<Input
-						style={inputStyle}
-						secureTextEntry={false}
-						autoCorrect={false}
-						placeholder="Search"
-						label="Search"
-						value={this.state.searchQuery}
-						onChangeText={searchQuery => this.setState({ searchQuery })}
-					/>
-					<Button
-						style = {buttonStyle}
-						onPress={this.searchCards.bind(this)}
-						title="Search"
-						accessibilityLabel="Search Cards"
-					/>
-				</View>
+
+				<Input
+					style={inputStyle}
+					secureTextEntry={false}
+					autoCorrect={false}
+					placeholder="Search"
+					label="Search"
+					value={this.state.searchQuery}
+					onChangeText={searchQuery => this.setState({ searchQuery })}
+				/>
+				<Button
+					style={buttonStyle}
+					onPress={this.searchCards.bind(this)}
+					title="Search"
+					accessibilityLabel="Search"
+				/>
 				<View>
 					{this.renderCardsList()}
 				</View>
@@ -84,20 +85,17 @@ const styles = {
 		flex: 1,
 		flexDirection: "column",
 		alignSelf: "stretch",		
-        alignItems: "flex-start",
-	},
-	searchViewStyle: {
-		flex: 1,
-		flexDirection: "row",
-		alignSelf: "stretch",
-		alignItems: "flex-start",
+		alignItems: "center",
+		padding: 5,
 	},
 	inputStyle: {
-		flex: 2,
+		flex: 1,
 	},
 	buttonStyle: {
-		flex: 0.5,
-	},
+		flex: 1,
+		alignItems: "flex-start",
+		alignSelf: "stretch",
+	}
 };
 
 export { Container };
