@@ -28,12 +28,12 @@ const styles = {
 	},
 	containerStyle: {
         height: 40,
-        width: '100%',
+        alignSelf: "stretch",
+        justifyContent: "center",     
         borderRadius: 4,
         borderWidth: 1,
         borderColor: '#000',
-        marginLeft: 10,
-        marginRight: 10,
+        margin: 10,
 	}
 }
 

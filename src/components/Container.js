@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ActivityIndicator, View, Button, FlatList, Image, Text } from 'react-native';
+import { ActivityIndicator, View, Button, FlatList, Image, Text, ScrollView } from 'react-native';
 import { Input } from './common';
 
 class Container extends Component {
@@ -26,6 +26,8 @@ class Container extends Component {
 	}
 
 	renderCardsList() {
+		const { cardResult, cardDetailsStyle } = styles;
+
 		if (this.state.loading) {
 			return (
 				<View>
@@ -35,16 +37,17 @@ class Container extends Component {
 			);
 		}
 
-		console.log(this.state.cardResults);
 		return this.state.cardResults.map((card) => {
 			return (
-				<View key={card.id}>
+				<View key={card.id} style={cardResult}>
 					<Image 
 						source={{uri: `${card.imageUrl}`}} 
-						style={{width: 50, height: 50}}
+						style={{width: 100, height: 150, margin: 10}}
 					/>
-					<Text>{card.name}</Text>
-					<Text>{card.type} | {card.rarity}</Text>
+					<View style={cardDetailsStyle}>
+						<Text>{card.name}</Text>
+						<Text>{card.type} | {card.rarity}</Text>
+					</View>
 				</View>
 			)
 		})
@@ -52,7 +55,7 @@ class Container extends Component {
 
 
 	render() {
-		const { containerViewStyle, inputStyle, buttonStyle } = styles;
+		const { containerViewStyle, inputStyle, buttonStyle, contentContainer } = styles;
 		
 		return (
 			<View style={containerViewStyle}>
@@ -72,9 +75,9 @@ class Container extends Component {
 					title="Search"
 					accessibilityLabel="Search"
 				/>
-				<View>
+				<ScrollView contentContainerStyle={contentContainer} style={{width: "100%"}}>
 					{this.renderCardsList()}
-				</View>
+				</ScrollView>
 			</View>
 		);
 	}
@@ -86,15 +89,35 @@ const styles = {
 		flexDirection: "column",
 		alignSelf: "stretch",		
 		alignItems: "center",
-		padding: 5,
+		margin: 5,
 	},
 	inputStyle: {
 		flex: 1,
+		width: '70%',
 	},
 	buttonStyle: {
 		flex: 1,
-		alignItems: "flex-start",
 		alignSelf: "stretch",
+		width: '100%',
+	},
+	cardResult: {
+		padding: 10,
+		borderWidth: 1,
+		borderRadius: 5,
+		margin: 10,
+		height: 200,
+		flex: 1,
+		flexDirection: "row",
+		alignItems: "center",
+		alignSelf: "stretch",
+	},
+	cardDetailsStyle: {
+		flex: 1,
+		flexDirection: "column",
+		alignItems: "flex-start"
+	},
+	contentContainer: {
+		paddingVertical: 20,
 	}
 };
 
