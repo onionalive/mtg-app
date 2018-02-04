@@ -66,6 +66,7 @@ class Container extends Component {
 						<View style={cardDetailsStyle}>
 							<Text>{card.name}</Text>
 							<Text>{card.type} | {card.rarity}</Text>
+							<Text>{card.text}</Text>
 						</View>
 					</View>
 				)
