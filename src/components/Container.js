@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { ActivityIndicator, View, Button, FlatList, Image, Text, ScrollView } from 'react-native';
+import { ActivityIndicator, View, Button, FlatList, Image, Text, ScrollView, Picker } from 'react-native';
 import { Input } from './common';
 
 class Container extends Component {
-	state = { searchQuery: '', cardResults: [], loading: false, page: 1 };
+	state = { searchQuery: '', cardResults: [], loading: false, page: 1, searchType: 'name' };
 
 	searchCards() {
 		this.setState({ 
@@ -11,7 +11,7 @@ class Container extends Component {
 			cardResults: [],
 			page: 1
 		 });
-		fetch(`http://api.magicthegathering.io/v1/cards?name=${this.state.searchQuery}&pageSize=10&page=${this.state.page}`)
+		fetch(`http://api.magicthegathering.io/v1/cards?contains=imageUrl&name=${this.state.searchQuery}&pageSize=10&page=${this.state.page}`)
 		.then((response) => response.json())
 		.then((responseJson) => {
 			this.setState({ 
@@ -31,7 +31,7 @@ class Container extends Component {
 			page: newPage,
 			loading: true
 		 });
-		fetch(`http://api.magicthegathering.io/v1/cards?name=${this.state.searchQuery}&pageSize=10&page=${this.state.page}`)
+		fetch(`http://api.magicthegathering.io/v1/cards?contains=imageUrl&name=${this.state.searchQuery}&pageSize=10&page=${this.state.page}`)
 		.then((response) => response.json())
 		.then((responseJson) => {
 			const allResults = this.state.cardResults.concat(responseJson.cards);
@@ -53,7 +53,6 @@ class Container extends Component {
 			return (
 				<View>
 					<ActivityIndicator />
-					<Text>Loading...</Text>									
 				</View>
 			);
 		}
@@ -91,26 +90,44 @@ class Container extends Component {
 
 
 	render() {
-		const { containerViewStyle, inputStyle, buttonStyle, contentContainer } = styles;
+		const { containerViewStyle, inputStyle, buttonStyle, contentContainer, searchSubContent, pickerStyle } = styles;
 		
 		return (
 			<View style={containerViewStyle}>
-
-				<Input
-					style={inputStyle}
-					secureTextEntry={false}
-					autoCorrect={false}
-					placeholder="Search"
-					label="Search"
-					value={this.state.searchQuery}
-					onChangeText={searchQuery => this.setState({ searchQuery })}
-				/>
-				<Button
-					style={buttonStyle}
-					onPress={this.searchCards.bind(this)}
-					title="Search"
-					accessibilityLabel="Search"
-				/>
+				<View style={containerViewStyle, {height: 100}}>
+					<Input
+						style={inputStyle}
+						secureTextEntry={false}
+						autoCorrect={false}
+						placeholder="Search"
+						label="Search"
+						value={this.state.searchQuery}
+						onChangeText={searchQuery => this.setState({ searchQuery })}
+					/>
+					<View style={searchSubContent}>
+						<Picker
+							style={pickerStyle}
+							selectedValue={this.state.searchType}
+							onValueChange={(itemValue) => this.setState({searchType: itemValue})}>
+							<Picker.Item label="Name" value="name" />
+							<Picker.Item label="Converted Mana Cost" value="cmc" />
+							<Picker.Item label="Color" value="colors" />
+							<Picker.Item label="Type" value="type" />
+							<Picker.Item label="Rarity" value="rarity" />
+							<Picker.Item label="Set" value="setName" />
+							<Picker.Item label="Flavor Text" value="flavor" />
+							<Picker.Item label="Text" value="text" />
+							<Picker.Item label="Power" value="power" />
+							<Picker.Item label="Toughness" value="toughness" />
+						</Picker>
+						<Button
+							style={buttonStyle}
+							onPress={this.searchCards.bind(this)}
+							title="Search"
+							accessibilityLabel="Search"
+						/>
+					</View>
+				</View>
 				<ScrollView contentContainerStyle={contentContainer} style={{width: "100%"}}>
 					{this.renderCardsList()}
 				</ScrollView>
@@ -125,7 +142,6 @@ const styles = {
 		flex: 1,
 		flexDirection: "column",
 		alignSelf: "stretch",		
-		alignItems: "center",
 		margin: 5,
 	},
 	inputStyle: {
@@ -134,8 +150,17 @@ const styles = {
 	},
 	buttonStyle: {
 		flex: 1,
-		alignSelf: "stretch",
-		width: '100%',
+	},
+	pickerStyle: {
+		width: 300,
+		height: 40,
+	},
+	searchSubContent: {
+		flex: 1,
+		flexDirection: "row",
+		height: 10,
+		alignItems: "flex-start",
+		// justifyContent: "center"
 	},
 	cardResult: {
 		padding: 10,
