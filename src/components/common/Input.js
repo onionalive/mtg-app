@@ -24,20 +24,16 @@ const styles = {
 		paddingRight: 5,
 		paddingLeft: 5,
 		fontSize: 18,
-        lineHeight: 23,
-        width: '100%',
-        // flex: 1,
-        // alignSelf: "stretch",        
+        lineHeight: 23,      
 	},
 	containerStyle: {
-        flex: 2,
         height: 40,
-        width: '70%',
+        alignSelf: "stretch",
+        justifyContent: "center",     
         borderRadius: 4,
         borderWidth: 1,
         borderColor: '#000',
-        marginLeft: 10,
-        marginRight: 10,
+        margin: 10,
 	}
 }
 
