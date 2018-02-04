@@ -11,7 +11,7 @@ class Container extends Component {
 			cardResults: [],
 			page: 1
 		 });
-		fetch(`http://api.magicthegathering.io/v1/cards?contains=imageUrl&name=${this.state.searchQuery}&pageSize=10&page=${this.state.page}`)
+		fetch(`http://api.magicthegathering.io/v1/cards?contains=imageUrl&${this.state.searchType}=${this.state.searchQuery}&pageSize=10&page=${this.state.page}&orderBy=name`)
 		.then((response) => response.json())
 		.then((responseJson) => {
 			this.setState({ 
@@ -31,7 +31,7 @@ class Container extends Component {
 			page: newPage,
 			loading: true
 		 });
-		fetch(`http://api.magicthegathering.io/v1/cards?contains=imageUrl&name=${this.state.searchQuery}&pageSize=10&page=${this.state.page}`)
+		fetch(`http://api.magicthegathering.io/v1/cards?contains=imageUrl&${this.state.searchType}=${this.state.searchQuery}&pageSize=10&page=${this.state.page}&orderBy=name`)
 		.then((response) => response.json())
 		.then((responseJson) => {
 			const allResults = this.state.cardResults.concat(responseJson.cards);
@@ -55,28 +55,30 @@ class Container extends Component {
 					<ActivityIndicator />
 				</View>
 			);
-		}
-
-		return this.state.cardResults.map((card) => {
-			return (
-				<View key={card.id} style={cardResult}>
-					<Image 
-						source={{uri: `${card.imageUrl}`}} 
-						style={{width: 110, height: 150, margin: 10}}
-					/>
-					<View style={cardDetailsStyle}>
-						<Text>{card.name}</Text>
-						<Text>{card.type} | {card.rarity}</Text>
+		} else if (this.state.cardResults.length > 0) {
+			return this.state.cardResults.map((card) => {
+				return (
+					<View key={card.id} style={cardResult}>
+						<Image 
+							source={{uri: `${card.imageUrl}`}} 
+							style={{width: 110, height: 150, margin: 10}}
+						/>
+						<View style={cardDetailsStyle}>
+							<Text>{card.name}</Text>
+							<Text>{card.type} | {card.rarity}</Text>
+						</View>
 					</View>
-				</View>
-			)
-		})
+				)
+			})
+		} else {
+			<Text>No Results!</Text>
+		}
 	}
 
 	renderLoadMoreButton() {
 		const { buttonStyle } = styles;
 
-		if (this.state.cardResults) {
+		if (this.state.cardResults.length > 0) {
 			return (
 				<Button
 					style={buttonStyle}
