@@ -3,21 +3,42 @@ import { ActivityIndicator, View, Button, FlatList, Image, Text, ScrollView } fr
 import { Input } from './common';
 
 class Container extends Component {
-	state = { searchQuery: '', cardResults: [], loading: false };
+	state = { searchQuery: '', cardResults: [], loading: false, page: 1 };
 
 	searchCards() {
 		this.setState({ 
 			loading: true,
-			cardResults: []
+			cardResults: [],
+			page: 1
 		 });
-		fetch(`http://api.magicthegathering.io/v1/cards?name=${this.state.searchQuery}&pageSize=10`)
+		fetch(`http://api.magicthegathering.io/v1/cards?name=${this.state.searchQuery}&pageSize=10&page=${this.state.page}`)
 		.then((response) => response.json())
 		.then((responseJson) => {
 			this.setState({ 
 				cardResults: responseJson.cards,
 				loading: false
 			 });
-			console.log(this.state.cardResults);
+		})
+		.catch((error) => {
+			this.setState({ loading: false });
+			console.error(error);
+		});
+	}
+
+	loadMore() {
+		const newPage = this.state.page + 1;
+		this.setState({ 
+			page: newPage,
+			loading: true
+		 });
+		fetch(`http://api.magicthegathering.io/v1/cards?name=${this.state.searchQuery}&pageSize=10&page=${this.state.page}`)
+		.then((response) => response.json())
+		.then((responseJson) => {
+			const allResults = this.state.cardResults.concat(responseJson.cards);
+			this.setState({ 
+				cardResults: allResults,
+				loading: false
+			 });
 		})
 		.catch((error) => {
 			this.setState({ loading: false });
@@ -42,7 +63,7 @@ class Container extends Component {
 				<View key={card.id} style={cardResult}>
 					<Image 
 						source={{uri: `${card.imageUrl}`}} 
-						style={{width: 100, height: 150, margin: 10}}
+						style={{width: 110, height: 150, margin: 10}}
 					/>
 					<View style={cardDetailsStyle}>
 						<Text>{card.name}</Text>
@@ -51,6 +72,21 @@ class Container extends Component {
 				</View>
 			)
 		})
+	}
+
+	renderLoadMoreButton() {
+		const { buttonStyle } = styles;
+
+		if (this.state.cardResults) {
+			return (
+				<Button
+					style={buttonStyle}
+					onPress={this.loadMore.bind(this)}
+					title="Load More"
+					accessibilityLabel="Load More"
+				/>
+			)
+		}
 	}
 
 
@@ -78,6 +114,7 @@ class Container extends Component {
 				<ScrollView contentContainerStyle={contentContainer} style={{width: "100%"}}>
 					{this.renderCardsList()}
 				</ScrollView>
+				{this.renderLoadMoreButton()}
 			</View>
 		);
 	}
